@@ -4,17 +4,16 @@
  * Licensed under MIT License. See LICENSE in root directory for more information.
  */
 
-import type { ChildProcessWithoutNullStreams } from "child_process";
-import { spawn } from "child_process";
 import type { Logger } from "@freelensapp/logger";
-import * as tcpPortUsed from "tcp-port-used";
+// import * as tcpPortUsed from "tcp-port-used";
 import { TypedRegEx } from "typed-regex";
+import spawn, { Subprocess } from "nano-spawn";
 import type { GetPortFromStream } from "../../../utils/get-port-from-stream.injectable";
 
-const internalPortMatcher = "^forwarding from (?<address>.+) ->";
-const internalPortRegex = Object.assign(TypedRegEx(internalPortMatcher, "i"), {
-  rawMatcher: internalPortMatcher,
-});
+// const internalPortMatcher = "^forwarding from (?<address>.+) ->";
+// const internalPortRegex = Object.assign(TypedRegEx(internalPortMatcher, "i"), {
+//   rawMatcher: internalPortMatcher,
+// });
 
 export interface PortForwardArgs {
   clusterId: string;
@@ -46,7 +45,7 @@ export class PortForward {
     );
   }
 
-  public process?: ChildProcessWithoutNullStreams;
+  public process?: Subprocess;
   public clusterId: string;
   public kind: string;
   public namespace: string;
@@ -83,46 +82,56 @@ export class PortForward {
       `${this.forwardPort ?? ""}:${this.port}`,
     ];
 
-    this.process = spawn(kubectlBin, commandArgs, {
-      env: process.env,
-    });
     PortForward.portForwards.push(this);
-    this.process.on("exit", () => {
-      const index = PortForward.portForwards.indexOf(this);
-
-      if (index > -1) {
-        PortForward.portForwards.splice(index, 1);
-      }
-    });
-
-    this.process.stderr.on("data", (data) => {
-      this.dependencies.logger.debug(`[PORT-FORWARD-ROUTE]: kubectl port-forward process stderr: ${data}`);
-    });
-
-    const internalPort = await this.dependencies.getPortFromStream(this.process.stdout, {
-      lineRegex: internalPortRegex,
-    });
 
     try {
-      await tcpPortUsed.waitUntilUsedOnHost({
-        host: this.address.split(",")[0],
-        port: internalPort,
-        retryTimeMs: 500,
-        timeOutMs: 15000,
+      this.process = spawn(kubectlBin, commandArgs, {
+        env: process.env,
       });
-
-      // make sure this.forwardPort is set to the actual port used (if it was 0 then an available port is found by 'kubectl port-forward')
-      this.forwardPort = internalPort;
+      for await (const line of this.process) {
+        this.dependencies.logger.debug(`[PORT-FORWARD-ROUTE]: kubectl port-forward process stdout: ${line}`);
+      }
 
       return true;
     } catch (error) {
-      this.process.kill();
-
       return false;
+    } finally {
+      const index = PortForward.portForwards.indexOf(this);
+      if (index > -1) {
+        PortForward.portForwards.splice(index, 1);
+      }
     }
+
+    // this.process.stderr.on("data", (data) => {
+    //   this.dependencies.logger.debug(`[PORT-FORWARD-ROUTE]: kubectl port-forward process stderr: ${data}`);
+    // });
+
+    // const internalPort = await this.dependencies.getPortFromStream(this.process.stdout, {
+    //   lineRegex: internalPortRegex,
+    // });
+
+    // try {
+    //   await tcpPortUsed.waitUntilUsedOnHost({
+    //     host: this.address.split(",")[0],
+    //     port: internalPort,
+    //     retryTimeMs: 500,
+    //     timeOutMs: 15000,
+    //   });
+
+    //   // make sure this.forwardPort is set to the actual port used (if it was 0 then an available port is found by 'kubectl port-forward')
+    //   this.forwardPort = internalPort;
+
+    //   return true;
+    // } catch (error) {
+    //   this.process.kill();
+
+    //   return false;
+    // }
   }
 
   public async stop() {
-    this.process?.kill();
+    this.process?.nodeChildProcess?.then((childProcess) => {
+      childProcess.kill();
+    });
   }
 }

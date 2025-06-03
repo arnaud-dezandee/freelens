@@ -829,6 +829,9 @@ importers:
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2(patch_hash=1a1bf7326243501fc30efab3260b8f1fc6b08096469a2412701b86f657fb1bf0)
+      nano-spawn:
+        specifier: 1.0.2
+        version: 1.0.2
       node-pty:
         specifier: 1.1.0-beta34
         version: 1.1.0-beta34
@@ -7387,6 +7390,10 @@ packages:
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
+  nano-spawn@1.0.2:
+    resolution: {integrity: sha512-21t+ozMQDAL/UGgQVBbZ/xXvNO10++ZPuTmKRO8k9V3AClVRht49ahtDjfY8l1q6nSHOrE5ASfthzH3ol6R/hg==}
+    engines: {node: '>=20.17'}
+
   nanoid@3.3.9:
     resolution: {integrity: sha512-SppoicMGpZvbF1l3z4x7No3OlIjP7QJvC9XR7AhZr1kL133KHnKPztkKDc+Ir4aJ/1VhTySrtKhrsycmrMQfvg==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -10984,12 +10991,12 @@ snapshots:
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)':
     dependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack@5.99.9)
 
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)':
     dependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack@5.99.9)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.1)(webpack@5.99.9)':
     dependencies:
@@ -14063,6 +14070,8 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
+  nano-spawn@1.0.2: {}
+
   nanoid@3.3.9: {}
 
   natural-compare@1.4.0: {}
@@ -15919,7 +15928,7 @@ snapshots:
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     optionalDependencies:
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack@5.99.9)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild

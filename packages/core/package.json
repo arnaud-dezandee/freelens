@@ -153,6 +153,7 @@
     "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
     "monaco-editor": "^0.52.2",
+    "nano-spawn": "1.0.2",
     "node-pty": "1.1.0-beta34",
     "path-to-regexp": "^6.3.0",
     "pnpm": "^10.11.0",
